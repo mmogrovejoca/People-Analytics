@@ -45,4 +45,6 @@ def plot_clusters(df_clustered):
     plt.ylabel('Año de Salida')
     plt.legend(title='Cluster')
     plt.grid(True)
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig

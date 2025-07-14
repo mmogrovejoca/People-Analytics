@@ -18,7 +18,9 @@ def plot_hires_terminations_timeline(hires, terminations):
     plt.ylabel('Número de Empleados')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig
 
 def plot_seasonality(data, date_column, title):
     """
@@ -40,7 +42,9 @@ def plot_seasonality(data, date_column, title):
     plt.title(title)
     plt.xlabel('Mes')
     plt.ylabel('Número de Eventos')
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig
 
 def plot_tenure_distribution(tenure_series, bins=20):
     """
@@ -56,7 +60,9 @@ def plot_tenure_distribution(tenure_series, bins=20):
     plt.xlabel('Duración del Empleo (días)')
     plt.ylabel('Frecuencia')
     plt.grid(True)
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig
 
 def plot_turnover_heatmap(df):
     """
@@ -75,7 +81,9 @@ def plot_turnover_heatmap(df):
     plt.title('Mapa de Calor de Bajas por Departamento y Mes')
     plt.xlabel('Mes de Salida')
     plt.ylabel('Departamento')
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig
 
 def plot_termination_reason_distribution(termination_reasons):
     """
@@ -91,7 +99,9 @@ def plot_termination_reason_distribution(termination_reasons):
     plt.ylabel('Número de Empleados')
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig
 
 from lifelines import KaplanMeierFitter
 
@@ -115,4 +125,6 @@ def plot_survival_curve(df):
     plt.xlabel('Días en la Empresa')
     plt.ylabel('Probabilidad de Supervivencia')
     plt.grid(True)
-    plt.show()
+    fig = plt.gcf()
+    plt.close()
+    return fig
