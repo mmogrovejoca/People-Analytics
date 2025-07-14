@@ -33,9 +33,31 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 
     // Event listeners
+    document.getElementById('file-upload').addEventListener('change', uploadFile);
     departmentFilter.addEventListener('change', loadAllData);
     document.getElementById('predict-btn').addEventListener('click', predictStatus);
     document.getElementById('report-btn').addEventListener('click', generateReport);
+
+    async function uploadFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`${API_URL}/upload`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            loadAllData();
+        } else {
+            alert(`Error: ${result.error}`);
+        }
+    }
 
     async function loadAllData() {
         const filters = getFilters();

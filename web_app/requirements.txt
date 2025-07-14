@@ -10,3 +10,4 @@ lifelines
 fpdf
 Flask
 Flask-Cors
+openpyxl

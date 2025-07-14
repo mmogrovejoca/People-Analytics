@@ -2,11 +2,13 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from flask import Flask, jsonify, request, send_file, render_template
+from flask import Flask, jsonify, request, send_file, render_template, session
 from flask_cors import CORS
 import pandas as pd
 import joblib
 from io import BytesIO
+import os
+from werkzeug.utils import secure_filename
 
 # Importar módulos de la lógica de negocio
 from backend.src.etl.data_loader import load_data
@@ -17,7 +19,14 @@ from backend.src.reporting.pdf_reporter import generate_pdf_report
 from backend.src.visualization import plotter # Importar el módulo plotter
 
 app = Flask(__name__)
-CORS(app)  # Habilitar CORS para permitir peticiones desde el frontend
+app.secret_key = 'supersecretkey'
+CORS(app, supports_credentials=True)
+
+# Configuración de carga de archivos
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Cargar modelo
 try:
@@ -25,14 +34,38 @@ try:
 except FileNotFoundError:
     model = None
 
-# Cargar y preprocesar datos al inicio
-DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'sample_data.csv')
-df = load_data(DATA_PATH)
-df_processed = preprocess_data(df.copy())
+def get_data():
+    if 'data' in session:
+        return pd.read_json(session['data'])
+    else:
+        # Cargar datos de ejemplo por defecto
+        DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'sample_data.csv')
+        df = load_data(DATA_PATH)
+        return preprocess_data(df.copy()) if df is not None else None
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        try:
+            df = pd.read_excel(filepath) if filename.endswith('.xlsx') else pd.read_csv(filepath)
+            df_processed = preprocess_data(df.copy())
+            session['data'] = df_processed.to_json()
+            return jsonify({'message': 'Archivo subido y procesado correctamente'})
+        except Exception as e:
+            return jsonify({'error': f'Error al procesar el archivo: {e}'}), 500
 
 @app.route('/api/test', methods=['GET'])
 def test_endpoint():
@@ -40,6 +73,10 @@ def test_endpoint():
 
 @app.route('/api/metrics', methods=['POST'])
 def get_metrics():
+    df_processed = get_data()
+    if df_processed is None:
+        return jsonify({'error': 'No data available'}), 400
+
     filters = request.json
     filtered_df = apply_filters(df_processed, filters)
 
@@ -74,6 +111,10 @@ def apply_filters(df, filters):
 
 @app.route('/api/chart-data', methods=['POST'])
 def get_chart_data():
+    df_processed = get_data()
+    if df_processed is None:
+        return jsonify({'error': 'No data available'}), 400
+
     filters = request.json
     chart_type = filters.get('chart_type')
     filtered_df = apply_filters(df_processed, filters)
@@ -103,6 +144,10 @@ def get_chart_data():
 
 @app.route('/api/predict', methods=['POST'])
 def predict_status():
+    df_processed = get_data()
+    if df_processed is None:
+        return jsonify({'error': 'No data available'}), 400
+
     if model is None:
         return jsonify({'error': 'Modelo no encontrado'}), 500
 
@@ -128,6 +173,10 @@ def predict_status():
 
 @app.route('/api/report', methods=['POST'])
 def generate_report():
+    df_processed = get_data()
+    if df_processed is None:
+        return jsonify({'error': 'No data available'}), 400
+
     filters = request.json
     filtered_df = apply_filters(df_processed, filters)
 
