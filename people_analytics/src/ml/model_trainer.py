@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import joblib
 
@@ -69,29 +70,58 @@ def prepare_data_for_model(df, period='M'):
 
     return model_df
 
-def train_and_save_model(model_df, model_path='model.joblib'):
+def train_and_evaluate_models(model_df):
     """
-    Entrena un modelo de clasificación y lo guarda en un archivo.
+    Entrena y evalúa diferentes modelos de clasificación.
 
     Args:
         model_df (pandas.DataFrame): DataFrame con los datos para el entrenamiento.
-        model_path (str): Ruta donde se guardará el modelo.
+
+    Returns:
+        dict: Un diccionario con los modelos entrenados y sus métricas.
     """
     X = model_df.drop('status', axis=1)
     y = model_df['status']
 
-    # Dividir los datos en conjuntos de entrenamiento y prueba
+    # Convertir etiquetas a números
+    y, class_names = pd.factorize(y, sort=True)
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-    # Entrenar el modelo
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+    models = {
+        'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
+        'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='mlogloss', random_state=42)
+    }
 
-    # Evaluar el modelo
-    y_pred = model.predict(X_test)
-    print("Accuracy:", accuracy_score(y_test, y_pred))
-    print("\nClassification Report:\n", classification_report(y_test, y_pred))
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
 
-    # Guardar el modelo
-    joblib.dump(model, model_path)
-    print(f"Modelo guardado en {model_path}")
+        accuracy = accuracy_score(y_test, y_pred)
+        report = classification_report(y_test, y_pred, target_names=class_names)
+
+        results[name] = {
+            'model': model,
+            'accuracy': accuracy,
+            'classification_report': report
+        }
+        print(f"--- {name} ---")
+        print("Accuracy:", accuracy)
+        print("Classification Report:\n", report)
+
+    return results
+
+def save_best_model(results, model_path='model.joblib'):
+    """
+    Guarda el mejor modelo en un archivo.
+
+    Args:
+        results (dict): Diccionario con los resultados de los modelos.
+        model_path (str): Ruta donde se guardará el modelo.
+    """
+    best_model_name = max(results, key=lambda name: results[name]['accuracy'])
+    best_model = results[best_model_name]['model']
+
+    joblib.dump(best_model, model_path)
+    print(f"Mejor modelo ({best_model_name}) guardado en {model_path}")

@@ -110,21 +110,35 @@ def get_tenure_distribution(df):
     df_terminated = df.dropna(subset=['FECHA_SALIDA'])
     return df_terminated['DURACION_EMPLEO']
 
-def get_metrics_by_department(df, metric_func, **kwargs):
+def get_metrics_by_group(df, group_by_col, metric_func, **kwargs):
     """
-    Calcula una métrica agrupada por departamento.
+    Calcula una métrica agrupada por una columna específica.
 
     Args:
         df (pandas.DataFrame): DataFrame con los datos de los empleados.
+        group_by_col (str): La columna por la que se agruparán los datos.
         metric_func (function): La función de la métrica a calcular.
         **kwargs: Argumentos adicionales para la función de la métrica.
 
     Returns:
-        pandas.DataFrame: Un DataFrame con la métrica calculada para cada departamento.
+        pandas.DataFrame: Un DataFrame con la métrica calculada para cada grupo.
     """
     results = {}
-    for department in df['AREA'].unique():
-        df_dept = df[df['AREA'] == department]
-        results[department] = metric_func(df_dept, **kwargs)
+    for group in df[group_by_col].unique():
+        df_group = df[df[group_by_col] == group]
+        results[group] = metric_func(df_group, **kwargs)
 
     return pd.DataFrame(results)
+
+def get_termination_reason_distribution(df):
+    """
+    Calcula la distribución de los motivos de salida.
+
+    Args:
+        df (pandas.DataFrame): DataFrame con los datos de los empleados.
+
+    Returns:
+        pandas.Series: Una serie con la distribución de los motivos de salida.
+    """
+    df_terminated = df.dropna(subset=['FECHA_SALIDA'])
+    return df_terminated['MOTIVO_SALIDA'].value_counts()

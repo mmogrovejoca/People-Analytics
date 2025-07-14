@@ -76,3 +76,43 @@ def plot_turnover_heatmap(df):
     plt.xlabel('Mes de Salida')
     plt.ylabel('Departamento')
     plt.show()
+
+def plot_termination_reason_distribution(termination_reasons):
+    """
+    Dibuja un gráfico de barras de la distribución de los motivos de salida.
+
+    Args:
+        termination_reasons (pandas.Series): Serie con la distribución de los motivos de salida.
+    """
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=termination_reasons.index, y=termination_reasons.values, palette='plasma')
+    plt.title('Distribución de Motivos de Salida')
+    plt.xlabel('Motivo de Salida')
+    plt.ylabel('Número de Empleados')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.show()
+
+from lifelines import KaplanMeierFitter
+
+def plot_survival_curve(df):
+    """
+    Dibuja la curva de supervivencia de los empleados.
+
+    Args:
+        df (pandas.DataFrame): DataFrame con los datos de los empleados.
+    """
+    kmf = KaplanMeierFitter()
+
+    # Se necesita una columna que indique si el evento (salida) ocurrió.
+    df['observed'] = df['FECHA_SALIDA'].notna()
+
+    kmf.fit(durations=df['DURACION_EMPLEO'], event_observed=df['observed'])
+
+    plt.figure(figsize=(10, 6))
+    kmf.plot_survival_function()
+    plt.title('Curva de Supervivencia de Empleados')
+    plt.xlabel('Días en la Empresa')
+    plt.ylabel('Probabilidad de Supervivencia')
+    plt.grid(True)
+    plt.show()
