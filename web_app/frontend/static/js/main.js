@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_URL = 'http://127.0.0.1:5000/api';
+    const API_URL = 'http://127.0.0.1/web_app/php_backend/api'; // Asumiendo un servidor web local
 
     // Inicializar gráficos
     const hiresTerminationsCtx = document.getElementById('hires-terminations-chart').getContext('2d');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filters = getFilters();
 
         // Cargar métricas
-        const metricsResponse = await fetch(`${API_URL}/metrics`, {
+        const metricsResponse = await fetch(`${API_URL}/metrics.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(filters)
@@ -73,11 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Cargar datos de gráficos
         updateChart('hires_terminations_timeline', hiresTerminationsChart, filters);
-        updateChart('termination_reason_distribution', terminationReasonChart, filters);
+        // updateChart('termination_reason_distribution', terminationReasonChart, filters); // Pendiente
     }
 
     async function updateChart(chartType, chartInstance, filters) {
-        const response = await fetch(`${API_URL}/chart-data`, {
+        const response = await fetch(`${API_URL}/chart-data.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...filters, chart_type: chartType })
@@ -140,19 +140,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function predictStatus() {
-        const filters = getFilters();
-        const response = await fetch(`${API_URL}/predict`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(filters)
+        // La predicción ahora se hace con un script de python llamado desde php
+        const response = await fetch(`${API_URL}/predict.php`, {
+            method: 'GET' // No se necesitan filtros, usa la sesión
         });
         const result = await response.json();
         alert(`Estado Predicho: ${result.prediction}`);
     }
 
     async function generateReport() {
+        // La generación de reportes en PDF desde PHP es compleja y se omite en esta fase
+        alert("La generación de reportes en PDF no está implementada en la versión PHP.");
+        return;
+
         const filters = getFilters();
-        const response = await fetch(`${API_URL}/report`, {
+        const response = await fetch(`${API_URL}/report.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(filters)
