@@ -1,0 +1,22 @@
+{
+    "metrics": {
+        "total_hires": 10,
+        "total_terminations": 4,
+        "retention_rate": 60,
+        "average_tenure": 250.5
+    },
+    "charts": {
+        "hires_terminations_timeline": {
+            "labels": ["2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10"],
+            "hires": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "terminations": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "termination_reason_distribution": {
+            "labels": ["Renuncia", "Despido"],
+            "values": [3, 1]
+        }
+    },
+    "prediction": {
+        "prediction": "Estable"
+    }
+}
