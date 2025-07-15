@@ -6,7 +6,19 @@ on:
       - main
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: PHP Lint
+        uses: php-actions/php-lint@v1
+        with:
+          path: ./web_app/php_backend/
+
   deploy:
+    needs: lint # El despliegue depende de que el linting sea exitoso
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
