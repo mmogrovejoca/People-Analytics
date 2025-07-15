@@ -4,6 +4,14 @@ Esta es una aplicación web completa para el análisis y la predicción de la ro
 
 **Nota Importante:** Esta versión utiliza un backend en PHP. Debido a las limitaciones de PHP para la ciencia de datos, algunas funcionalidades (como la generación de reportes en PDF y ciertos gráficos avanzados) han sido simplificadas u omitidas en comparación con una versión con backend en Python.
 
+## Despliegue
+
+El frontend de esta aplicación se despliega automáticamente en GitHub Pages cada vez que se hace un `push` a la rama `main`.
+
+**El backend de PHP no se puede desplegar en GitHub Pages** y debe ser alojado en un servidor compatible con PHP (por ejemplo, Heroku, AWS, DigitalOcean, etc.).
+
+Una vez que hayas desplegado el backend, asegúrate de **actualizar la variable `API_URL`** en el archivo `web_app/frontend/static/js/main.js` con la URL de tu backend.
+
 ## Características Principales
 
 - **Dashboard Interactivo:** Visualiza las métricas clave de rotación.
@@ -15,19 +23,12 @@ Esta es una aplicación web completa para el análisis y la predicción de la ro
 ## Estructura del Proyecto
 
 - `php_backend/`: Contiene la lógica del backend desarrollada con PHP.
-  - `api/`: Endpoints de la API.
-  - `src/`: Lógica de negocio (manejo de datos, métricas).
-  - `uploads/`: Directorio para los archivos subidos.
-  - `vendor/`: Dependencias de Composer.
-  - `predict.py`: Script de Python para las predicciones.
-  - `composer.json`: Dependencias de PHP.
-- `frontend/`: Contiene los archivos del frontend.
-  - `static/`: Archivos estáticos (CSS, JavaScript).
-  - `templates/`: Plantillas HTML (aunque se sirven desde el backend, están aquí por organización).
+- `frontend/`: Contiene los archivos del frontend que se despliegan en GitHub Pages.
+- `.github/workflows/`: Contiene la configuración de GitHub Actions para el despliegue.
 - `requirements.txt`: Dependencias de Python para el script de predicción.
 - `README.md`: Este archivo.
 
-## Cómo Utilizar la Aplicación
+## Cómo Utilizar la Aplicación Localmente
 
 ### 1. Requisitos Previos
 
@@ -70,20 +71,9 @@ Esta es una aplicación web completa para el análisis y la predicción de la ro
 1.  **Abrir la Aplicación:**
     -   Abre tu navegador web y navega a la URL correspondiente a la ubicación del proyecto en tu servidor local. Por ejemplo:
         ```
-        http://localhost/web_app/
+        http://localhost/web_app/frontend/
         ```
     -   Deberías ver el dashboard principal.
 
-2.  **Cargar Datos:**
-    -   En la barra lateral, utiliza el campo "Cargar Archivo" para subir un archivo CSV o Excel con tus datos de empleados.
-    -   Una vez subido, el dashboard se actualizará automáticamente con tus datos.
-
-3.  **Utilizar los Filtros:**
-    -   Selecciona un rango de fechas y/o uno o más departamentos en la barra lateral para filtrar los datos.
-    -   Las métricas y los gráficos se actualizarán para reflejar tu selección.
-
-4.  **Realizar Predicciones:**
-    -   Haz clic en el botón "Predecir Estado" para obtener una predicción del estado de la empresa. La predicción se basará en los datos actualmente cargados y filtrados.
-
-5.  **Nota sobre el Modelo:**
-    -   El sistema utiliza un modelo de Machine Learning pre-entrenado (`model.joblib`). Si deseas re-entrenar el modelo con tus propios datos, necesitarás ejecutar los notebooks de Jupyter del proyecto original (en la versión de Python).
+2.  **Cargar Datos, Filtrar y Predecir:**
+    -   Utiliza la interfaz como se describe en las secciones anteriores.
